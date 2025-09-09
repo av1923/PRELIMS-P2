@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change your Role - ITMC311</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(45deg, #f09433 0%, #e6686a 25%, #d42296 50%, #6633cc 75%, #4a68d8 100%);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #ffffff;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: #262626;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            font-size: 15px;
+            transition: border-color 0.3s ease;
+            color: #262626;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #d42296;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #ffffff;
+            background: linear-gradient(45deg, #d42296, #f09433);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .role-success {
+            color: #28a745;
+            font-weight: 600;
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .role-json {
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 12px 18px;
+            margin-top: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            font-family: monospace;
+            font-size: 15px;
+            color: #262626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Change your Role</h1>
+        <form id="patchRoleForm">
+            <div class="form-group">
+                <label for="userId">User ID:</label>
+                <input type="text" id="userId" name="userId" required>
+            </div>
+            <button type="submit">Set Role to Admin</button>
+        </form>
+        <div id="roleResult"></div>
+    </div>
+    <script src="change_role.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var patchRoleForm = document.getElementById('patchRoleForm');
+            if(patchRoleForm) {
+                patchRoleForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var resultMsg = document.getElementById('roleResult');
+                    setTimeout(function() {
+                        window.location.href = 'view_all_pets.html';
+                    }, 5000);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
