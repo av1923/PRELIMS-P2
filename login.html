@@ -112,21 +112,5 @@
     </div>
 
     <script src="login.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var loginForm = document.getElementById('loginForm');
-            if(loginForm) {
-                loginForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    var resultMsg = document.getElementById('result');
-                    setTimeout(function() {
-                        if(resultMsg && resultMsg.textContent !== 'Invalid inputs' && resultMsg.textContent !== 'Invalid authentication key') {
-                            window.location.href = 'edit_username.html';
-                        }
-                    }, 3000);
-                });
-            }
-        });
-    </script>
 </body>
 </html>
