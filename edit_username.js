@@ -1,55 +1,89 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const editUserForm = document.getElementById('editUserForm');
-    const userIdInput = document.getElementById('userId');
-    const authKeyInput = document.getElementById('authKey');
-    const newUsernameInput = document.getElementById('newUsername');
-    const resultDisplay = document.getElementById('result');
+class UserEditor {
+  constructor() {
+    this.form = document.getElementById('editUserForm');
+    this.userIdInput = document.getElementById('userId');
+    this.authKeyInput = document.getElementById('authKey');
+    this.newUsernameInput = document.getElementById('newUsername');
+    this.resultDisplay = document.getElementById('result');
+    this.baseUrl = 'https://prelim-exam.onrender.com/users';
+    this.init();
+  }
 
-    editUserForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
+  init() {
+    if (this.form) {
+      this.form.addEventListener('submit', this.handleSubmit.bind(this));
+    }
+  }
 
-        resultDisplay.textContent = '';
-        resultDisplay.style.color = '#333';
+  async handleSubmit(event) {
+    event.preventDefault();
+    this.clearResult();
 
-        const userId = userIdInput.value.trim();
-        const authKey = authKeyInput.value.trim();
-        const newUsername = newUsernameInput.value.trim();
+    const userId = this.userIdInput.value.trim();
+    const authKey = this.authKeyInput.value.trim();
+    const newUsername = this.newUsernameInput.value.trim();
 
-        if (!userId || !authKey || !newUsername) {
-            resultDisplay.textContent = 'Please enter user ID, 6-character code, and new username.';
-            resultDisplay.style.color = 'red';
-            return;
-        }
+    if (!this.validateInputs(userId, authKey, newUsername)) {
+      return;
+    }
 
-        try {
-            const response = await fetch(`https://prelim-exam.onrender.com/users/${userId}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: newUsername, authKey: authKey })
-            });
-            const data = await response.json();
+    try {
+      const response = await this.makeApiCall(userId, authKey, newUsername);
+      this.processResponse(response);
+    } catch (error) {
+      this.displayError('Network or server error.');
+    }
+  }
 
-            if (response.ok && data.message) {
-                resultDisplay.textContent = data.message;
-                resultDisplay.style.color = 'green';
+  validateInputs(userId, authKey, newUsername) {
+    if (!userId || !authKey || !newUsername) {
+      this.displayError('Please enter user ID, 6-character code, and new username.');
+      return false;
+    }
+    return true;
+  }
 
-                if (data.message.indexOf('Wow! Congrats! You successfully edited your username!') === 0) {
-                    setTimeout(() => {
-                        window.location.href = 'add_a_pet.html';
-                    }, 5000); 
-                }
-
-            } else if (data.message) {
-                resultDisplay.textContent = data.message;
-                resultDisplay.style.color = 'red';
-            } else {
-                resultDisplay.textContent = 'Update failed.';
-                resultDisplay.style.color = 'red';
-            }
-        } catch (err) {
-            console.error('Update error:', err);
-            resultDisplay.textContent = 'Network or server error.';
-            resultDisplay.style.color = 'red';
-        }
+  async makeApiCall(userId, authKey, newUsername) {
+    const response = await fetch(`${this.baseUrl}/${userId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: newUsername, authKey: authKey })
     });
-});
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Update failed.');
+    }
+    return response.json();
+  }
+
+  processResponse(data) {
+    if (data.message) {
+      this.resultDisplay.textContent = data.message;
+      this.resultDisplay.style.color = data.message.indexOf('Wow! Congrats! You successfully edited your username!') === 0 ? 'green' : 'red';
+
+      if (data.message.indexOf('Wow! Congrats! You successfully edited your username!') === 0) {
+        this.scheduleRedirect();
+      }
+    } else {
+      this.displayError('Update failed.');
+    }
+  }
+
+  scheduleRedirect() {
+    setTimeout(() => {
+      window.location.href = 'add_a_pet.html';
+    }, 5000);
+  }
+
+  clearResult() {
+    this.resultDisplay.textContent = '';
+    this.resultDisplay.style.color = '#333';
+  }
+
+  displayError(message) {
+    this.resultDisplay.textContent = message;
+    this.resultDisplay.style.color = 'red';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => new UserEditor());
