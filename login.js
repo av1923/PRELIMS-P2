@@ -1,63 +1,103 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const loginForm = document.getElementById('loginForm');
-  const usernameInput = document.getElementById('username');
-  const passwordInput = document.getElementById('password');
-  const authKeyInput = document.getElementById('authKey');
-  const resultDisplay = document.getElementById('result');
-  const loginButton = loginForm.querySelector('button[type="submit"]');
+class LoginManager {
+  constructor() {
+    this.form = document.getElementById('loginForm');
+    this.usernameInput = document.getElementById('username');
+    this.passwordInput = document.getElementById('password');
+    this.authKeyInput = document.getElementById('authKey');
+    this.resultDisplay = document.getElementById('result');
+    this.loginButton = this.form.querySelector('button[type="submit"]');
+    this.baseUrl = 'https://prelim-exam.onrender.com/login';
+    this.init();
+  }
 
-  loginForm.addEventListener('submit', async function (event) {
+  init() {
+    if (this.form) {
+      this.form.addEventListener('submit', this.handleSubmit.bind(this));
+    }
+  }
+
+  async handleSubmit(event) {
     event.preventDefault();
+    this.clearResult();
+    this.disableButton('Logging in...');
 
-    resultDisplay.textContent = '';
-    resultDisplay.style.color = '#333';
-    loginButton.disabled = true;
-    loginButton.textContent = 'Logging in...';
+    const username = this.usernameInput.value.trim();
+    const password = this.passwordInput.value.trim();
+    const authKey = this.authKeyInput.value.trim();
 
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-    const authKey = authKeyInput.value.trim();
-
-    if (!username || !password || !authKey) {
-      resultDisplay.textContent = 'Please enter username, password, and authentication key.';
-      resultDisplay.style.color = 'red';
-      loginButton.disabled = false;
-      loginButton.textContent = 'Login';
+    if (!this.validateInputs(username, password, authKey)) {
+      this.enableButton('Login');
       return;
     }
 
     try {
-      const body = { username, password, authKey };
-      const response = await fetch('https://prelim-exam.onrender.com/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      const data = await response.json();
-
-      if (response.ok && data.code && data.id) {
-        localStorage.setItem('itmc_code', data.code);
-        localStorage.setItem('itmc_id', data.id);
-        
-        resultDisplay.textContent = 'Login successful!';
-        resultDisplay.style.color = 'green';
-        
-        setTimeout(() => {
-          window.location.href = 'edit_username.html';
-        }, 1500);
-
-      } else {
-        let errorMsg = data.message || 'Login failed. Please check your credentials.';
-        resultDisplay.textContent = errorMsg;
-        resultDisplay.style.color = 'red';
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      resultDisplay.textContent = 'Network or server error. Please try again later.';
-      resultDisplay.style.color = 'red';
+      const response = await this.makeApiCall(username, password, authKey);
+      this.processResponse(response);
+    } catch (error) {
+      this.displayError('Network or server error. Please try again later.');
     } finally {
-      loginButton.disabled = false;
-      loginButton.textContent = 'Login';
+      this.enableButton('Login');
     }
-  });
-});
+  }
+
+  validateInputs(username, password, authKey) {
+    if (!username || !password || !authKey) {
+      this.displayError('Please enter username, password, and authentication key.');
+      return false;
+    }
+    return true;
+  }
+
+  async makeApiCall(username, password, authKey) {
+    const response = await fetch(this.baseUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password, authKey })
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.message || 'Login failed. Please check your credentials.');
+    }
+    return response.json();
+  }
+
+  processResponse(data) {
+    if (data.code && data.id) {
+      localStorage.setItem('itmc_code', data.code);
+      localStorage.setItem('itmc_id', data.id);
+      this.resultDisplay.textContent = 'Login successful!';
+      this.resultDisplay.style.color = 'green';
+      this.scheduleRedirect();
+    } else {
+      this.displayError(data.message || 'Login failed. Please check your credentials.');
+    }
+  }
+
+  scheduleRedirect() {
+    setTimeout(() => {
+      window.location.href = 'edit_username.html';
+    }, 1500);
+  }
+
+  clearResult() {
+    this.resultDisplay.textContent = '';
+    this.resultDisplay.style.color = '#333';
+  }
+
+  disableButton(text) {
+    this.loginButton.disabled = true;
+    this.loginButton.textContent = text;
+  }
+
+  enableButton(text) {
+    this.loginButton.disabled = false;
+    this.loginButton.textContent = text;
+  }
+
+  displayError(message) {
+    this.resultDisplay.textContent = message;
+    this.resultDisplay.style.color = 'red';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => new LoginManager());
