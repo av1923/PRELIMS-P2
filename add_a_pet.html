@@ -110,22 +110,6 @@
         </form>
         <p id="petResult"></p>
     </div>
-    <script src="add_a_pet.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var addPetForm = document.getElementById('addPetForm');
-            if(addPetForm) {
-                addPetForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    var resultMsg = document.getElementById('petResult');
-                    setTimeout(function() {
-                        if(resultMsg && resultMsg.textContent.startsWith('ITMC{6.')) {
-                            window.location.href = 'view_all_pets.html';
-                        }
-                    }, 5000);
-                });
-            }
-        });
-    </script>
+    <script src="addPet.js"></script>
 </body>
 </html>
